@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音声認識サイト</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:active {
+            transform: scale(0.92);
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        button svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        #micButton.recording {
+            background-color: #dc3545;
+        }
+        #micButton.recording:hover {
+            background-color: #c82333;
+        }
+
+        #languageSelect {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            font-family: 'Roboto', sans-serif;
+            display: none;
+            height: 50px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        #outputArea {
+            width: 80%;
+            max-width: 700px;
+            height: 300px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: left;
+            line-height: 1.6;
+            overflow-y: auto;
+        }
+        
+        #outputArea p {
+            margin: 0 0 10px 0;
+        }
+        #outputArea p.interim {
+            color: #888;
+        }
+        #outputArea p:last-child {
+            margin-bottom: 0;
+        }
+
+        #statusMessage {
+            margin-top: 15px;
+            font-style: italic;
+            color: #555;
+            min-height: 20px;
+        }
+
+        .privacy-notice { /* 新しく追加 */
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* 確認モーダル */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 25px 30px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        .modal-content button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            width: auto;
+            height: auto;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        #confirmYes { background-color: #dc3545; }
+        #confirmYes:hover { background-color: #c82333; }
+        #confirmNo { background-color: #6c757d; }
+        #confirmNo:hover { background-color: #5a6268; }
+
+    </style>
+</head>
+<body>
+
+    <h1>音声認識サイト</h1>
+
+    <div class="controls">
+        <button id="micButton" aria-label="音声認識を開始">
+            <svg id="micIcon" viewBox="0 0 24 24">
+                <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/>
+            </svg>
+            <svg id="stopIcon" viewBox="0 0 24 24" style="display: none;">
+                <path d="M6 6h12v12H6z"/>
+            </svg>
+        </button>
+        <button id="langButton" aria-label="言語を選択">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 12v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+            </svg>
+        </button>
+        <select id="languageSelect">
+            <option value="ja-JP">日本語</option>
+            <option value="en-US">English</option>
+        </select>
+        <button id="clearButton" aria-label="履歴をクリア">
+            <svg viewBox="0 0 24 24">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+            </svg>
+        </button>
+    </div>
+
+    <div id="outputArea">
+        <p>ここに認識されたテキストが表示されます。</p>
+    </div>
+    <div id="statusMessage"></div>
+    <div class="privacy-notice"> <!-- ここに追加 -->
+        <p>音声データはクラウドに保存されません。ご安心ください。</p>
+    </div>
+
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <p>本当に履歴を削除しますか？</p>
+            <button id="confirmYes">はい</button>
+            <button id="confirmNo">いいえ</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const micButton = document.getElementById('micButton');
+            const micIcon = document.getElementById('micIcon');
+            const stopIcon = document.getElementById('stopIcon');
+            const langButton = document.getElementById('langButton');
+            const languageSelect = document.getElementById('languageSelect');
+            const clearButton = document.getElementById('clearButton');
+            const outputArea = document.getElementById('outputArea');
+            const statusMessage = document.getElementById('statusMessage');
+            const confirmModal = document.getElementById('confirmModal');
+            const confirmYesButton = document.getElementById('confirmYes');
+            const confirmNoButton = document.getElementById('confirmNo');
+
+            let isRecording = false;
+            let recognition;
+            let currentInterimParagraph = null;
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = languageSelect.value;
+                recognition.maxAlternatives = 1;
+
+                const initialOutputMessage = '<p>ここに認識されたテキストが表示されます。</p>';
+                outputArea.innerHTML = initialOutputMessage;
+
+                recognition.onstart = () => {
+                    statusMessage.textContent = '録音中...';
+                    micButton.classList.add('recording');
+                    micIcon.style.display = 'none';
+                    stopIcon.style.display = 'inline-block';
+                    micButton.setAttribute('aria-label', '音声認識を停止');
+                    
+                    if (outputArea.innerHTML.trim() === initialOutputMessage.trim()) {
+                        outputArea.innerHTML = '';
+                        currentInterimParagraph = null;
+                    }
+                };
+
+                recognition.onresult = (event) => {
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript + ' ';
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+
+                    if (interimTranscript) {
+                        if (!currentInterimParagraph) {
+                            currentInterimParagraph = document.createElement('p');
+                            currentInterimParagraph.classList.add('interim');
+                            outputArea.appendChild(currentInterimParagraph);
+                        }
+                        currentInterimParagraph.textContent = finalTranscript + interimTranscript;
+                    }
+
+                    if (finalTranscript) {
+                        if (currentInterimParagraph) {
+                            currentInterimParagraph.textContent = finalTranscript.trim();
+                            currentInterimParagraph.classList.remove('interim');
+                        } else {
+                            const p = document.createElement('p');
+                            p.textContent = finalTranscript.trim();
+                            outputArea.appendChild(p);
+                        }
+                        currentInterimParagraph = null;
+                    }
+                    
+                    outputArea.scrollTop = outputArea.scrollHeight;
+                };
+                
+                recognition.onend = () => {
+                    isRecording = false;
+                    statusMessage.textContent = 'マイクボタンを押して話してください。';
+                    micButton.classList.remove('recording');
+                    micIcon.style.display = 'inline-block';
+                    stopIcon.style.display = 'none';
+                    micButton.disabled = false;
+                    micButton.setAttribute('aria-label', '音声認識を開始');
+
+                    if (currentInterimParagraph && currentInterimParagraph.textContent.trim() !== '') {
+                        currentInterimParagraph.classList.remove('interim');
+                    }
+                    currentInterimParagraph = null;
+                };
+
+                recognition.onerror = (event) => {
+                    let errorMessage = 'エラーが発生しました。';
+                    if (event.error === 'no-speech') {
+                        errorMessage = '音声が検出されませんでした。';
+                    } else if (event.error === 'audio-capture') {
+                        errorMessage = 'マイクが見つかりません。';
+                    } else if (event.error === 'not-allowed') {
+                        errorMessage = 'マイクの使用が許可されていません。';
+                    }
+                    statusMessage.textContent = errorMessage + ' (' + event.error + ')';
+                };
+
+                micButton.addEventListener('click', () => {
+                    if (!SpeechRecognition) return;
+
+                    if (isRecording) {
+                        recognition.stop();
+                    } else {
+                        try {
+                            recognition.lang = languageSelect.value;
+                            recognition.start();
+                            isRecording = true;
+                            micButton.disabled = true;
+                            setTimeout(() => micButton.disabled = false, 1000);
+                        } catch (e) {
+                            console.error("Recognition start error:", e);
+                            statusMessage.textContent = '音声認識を開始できませんでした。';
+                            isRecording = false;
+                        }
+                    }
+                });
+
+                langButton.addEventListener('click', () => {
+                    if (languageSelect.style.display === 'none' || languageSelect.style.display === '') {
+                        languageSelect.style.display = 'inline-block';
+                    } else {
+                        languageSelect.style.display = 'none';
+                    }
+                });
+
+                languageSelect.addEventListener('change', (event) => {
+                    recognition.lang = event.target.value;
+                    statusMessage.textContent = `言語が ${languageSelect.options[languageSelect.selectedIndex].text} に変更されました。`;
+                    if (isRecording) {
+                        statusMessage.textContent += ' 録音を停止しました。再度マイクボタンを押してください。';
+                    }
+                });
+
+                clearButton.addEventListener('click', () => {
+                    confirmModal.style.display = 'flex';
+                });
+
+                confirmYesButton.addEventListener('click', () => {
+                    outputArea.innerHTML = initialOutputMessage;
+                    currentInterimParagraph = null;
+                    statusMessage.textContent = '履歴がクリアされました。';
+                    closeConfirmModal();
+                });
+
+                confirmNoButton.addEventListener('click', () => {
+                    closeConfirmModal();
+                });
+                
+                confirmModal.addEventListener('click', (event) => {
+                    if (event.target === confirmModal) {
+                        closeConfirmModal();
+                    }
+                });
+
+                function closeConfirmModal() {
+                    confirmModal.style.display = 'none';
+                }
+
+                statusMessage.textContent = 'マイクボタンを押して話してください。';
+
+            } else {
+                micButton.disabled = true;
+                langButton.disabled = true;
+                languageSelect.disabled = true;
+                clearButton.disabled = true;
+                statusMessage.textContent = 'お使いのブラウザは音声認識に対応していません。';
+                outputArea.innerHTML = '<p>音声認識機能を利用できません。</p>';
+            }
+        });
+    </script>
+
+</body>
+</html>
