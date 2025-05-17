@@ -12,7 +12,8 @@
             --text-color-light: #555;
             --text-color-lighter: #666;
             --text-color-interim: #888;
-            --text-color-translation: #777;
+            --text-color-translation: #007bff; 
+            --translation-bg-color: #e9f4ff; 
 
             --primary-button-bg: #007bff;
             --primary-button-text: white;
@@ -46,8 +47,8 @@
                 --text-color-light: #bbbbbb;
                 --text-color-lighter: #aaaaaa;
                 --text-color-interim: #999999;
-                --text-color-translation: #bbbbbb;
-
+                --text-color-translation: #58a6ff; 
+                --translation-bg-color: #223344; 
 
                 --primary-button-bg: #0d6efd;
                 --primary-button-hover-bg: #0a58ca;
@@ -86,262 +87,55 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        h1 {
-            color: var(--text-color);
-            margin-bottom: 20px;
-            transition: color 0.3s;
-        }
+        h1 { color: var(--text-color); margin-bottom: 20px; transition: color 0.3s; }
+        .controls { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        button { background-color: var(--primary-button-bg); color: var(--primary-button-text); border: none; padding: 0; border-radius: 50%; cursor: pointer; font-size: 16px; transition: background-color 0.2s ease, transform 0.1s ease, color 0.2s ease; display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; box-shadow: 0 2px 5px var(--shadow-strong-color); }
+        button:hover { background-color: var(--primary-button-hover-bg); }
+        button:active { transform: scale(0.92); }
+        button:disabled { background-color: #cccccc; opacity: 0.7; cursor: not-allowed; }
+        @media (prefers-color-scheme: dark) { button:disabled { background-color: #555; } }
+        button svg { width: 24px; height: 24px; fill: var(--primary-button-text); transition: fill 0.2s ease; }
+        #micButton.recording { background-color: var(--recording-button-bg); }
+        #micButton.recording:hover { background-color: var(--recording-button-hover-bg); }
+        #languageSelect, #translationSourceLang, #translationTargetLang { padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 16px; font-family: 'Roboto', sans-serif; height: 50px; box-shadow: 0 2px 5px var(--shadow-color); background-color: var(--element-bg); color: var(--text-color); transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
+        #languageSelect { display: none; }
 
-        .controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
+        #outputArea { width: 80%; max-width: 700px; height: 300px; background-color: var(--element-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-top: 10px; box-shadow: 0 2px 10px var(--shadow-color); text-align: left; line-height: 1.6; overflow-y: auto; transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
+        .speech-entry { display: flex; align-items: flex-start; margin-bottom: 12px; padding: 8px; border-radius: 6px; background-color: var(--element-bg); border: 1px solid var(--border-color); }
+        @media (prefers-color-scheme: dark) { .speech-entry { background-color: #2a2a2a; border-color: var(--border-color); } }
+        .speech-entry p { margin: 0; }
+        .original-text { flex-basis: 50%; flex-grow: 1; padding-right: 10px; color: var(--text-color); word-break: break-word; }
+        .translated-text-container { flex-basis: 50%; flex-grow: 1; padding-left: 10px; border-left: 2px solid var(--primary-button-bg); word-break: break-word; }
+        .translated-text-container p.translated-text { color: var(--text-color-translation); font-size: 0.95em; background-color: var(--translation-bg-color); padding: 4px 8px; border-radius: 4px; }
+        .translated-text-container span.translation-label { font-size: 0.8em; color: var(--text-color-light); display: block; margin-bottom: 3px; }
+        #outputArea p.interim { color: var(--text-color-interim); margin-bottom: 10px; }
+        .speech-entry p.interim { color: var(--text-color-interim); }
 
-        button {
-            background-color: var(--primary-button-bg);
-            color: var(--primary-button-text);
-            border: none;
-            padding: 0;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.2s ease, transform 0.1s ease, color 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 50px;
-            height: 50px;
-            box-shadow: 0 2px 5px var(--shadow-strong-color);
-        }
+        #statusMessage { margin-top: 15px; font-style: italic; color: var(--text-color-light); min-height: 20px; transition: color 0.3s; }
+        .privacy-notice { margin-top: 10px; font-size: 0.9em; color: var(--text-color-lighter); transition: color 0.3s; }
+        .privacy-notice p { color: var(--text-color-lighter); transition: color 0.3s; }
 
-        button:hover {
-            background-color: var(--primary-button-hover-bg);
-        }
-        button:active {
-            transform: scale(0.92);
-        }
-        button:disabled {
-            background-color: #cccccc;
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-        @media (prefers-color-scheme: dark) {
-            button:disabled {
-                background-color: #555;
-            }
-        }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: var(--modal-overlay-bg); align-items: center; justify-content: center; transition: background-color 0.3s; }
+        .modal-content { background-color: var(--modal-content-bg); color: var(--text-color); padding: 25px 30px; border-radius: 8px; text-align: left; box-shadow: 0 5px 15px var(--modal-shadow-color); transition: background-color 0.3s, color 0.3s; width: 90%; max-width: 450px; }
+        .modal-content h2 { text-align: center; margin-top: 0; margin-bottom: 25px; }
+        .modal-content p { margin-bottom: 20px; font-size: 18px; text-align: center; }
+        .modal-content button.action-button { margin: 0 10px; padding: 10px 20px; width: auto; height: auto; border-radius: 5px; font-size: 16px; box-shadow: 0 2px 4px var(--shadow-color); }
+        #confirmYes { background-color: var(--recording-button-bg); color: var(--primary-button-text); }
+        #confirmYes:hover { background-color: var(--recording-button-hover-bg); }
+        #confirmNo, #translationSettingsCloseButton { background-color: var(--secondary-button-bg); color: var(--secondary-button-text); }
+        #confirmNo:hover, #translationSettingsCloseButton:hover { background-color: var(--secondary-button-hover-bg); }
+        .modal-buttons { text-align: center; margin-top: 20px; }
 
-        button svg {
-            width: 24px;
-            height: 24px;
-            fill: var(--primary-button-text);
-            transition: fill 0.2s ease;
-        }
-
-        #micButton.recording {
-            background-color: var(--recording-button-bg);
-        }
-        #micButton.recording:hover {
-            background-color: var(--recording-button-hover-bg);
-        }
-
-        #languageSelect, #translationSourceLang, #translationTargetLang {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            font-size: 16px;
-            font-family: 'Roboto', sans-serif;
-            height: 50px;
-            box-shadow: 0 2px 5px var(--shadow-color);
-            background-color: var(--element-bg);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-        }
-        #languageSelect { display: none; } /* 初期非表示 */
-
-
-        #outputArea {
-            width: 80%;
-            max-width: 700px;
-            height: 300px;
-            background-color: var(--element-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 10px;
-            box-shadow: 0 2px 10px var(--shadow-color);
-            text-align: left;
-            line-height: 1.6;
-            overflow-y: auto;
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-        }
-        
-        #outputArea p {
-            margin: 0 0 5px 0; /* 訳文のために少し詰める */
-            color: var(--text-color);
-            transition: color 0.3s;
-        }
-        #outputArea p.interim {
-            color: var(--text-color-interim);
-        }
-        #outputArea p.translated-text { /* 訳文のスタイル */
-            font-size: 0.9em;
-            color: var(--text-color-translation);
-            margin-left: 15px; /* 少しインデント */
-            margin-bottom: 10px;
-            font-style: italic;
-        }
-        #outputArea p:last-child {
-            margin-bottom: 0;
-        }
-
-        #statusMessage {
-            margin-top: 15px;
-            font-style: italic;
-            color: var(--text-color-light);
-            min-height: 20px;
-            transition: color 0.3s;
-        }
-
-        .privacy-notice {
-            margin-top: 10px;
-            font-size: 0.9em;
-            color: var(--text-color-lighter);
-            transition: color 0.3s;
-        }
-        .privacy-notice p {
-             color: var(--text-color-lighter);
-             transition: color 0.3s;
-        }
-
-        /* モーダル共通 */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: var(--modal-overlay-bg);
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.3s;
-        }
-
-        .modal-content {
-            background-color: var(--modal-content-bg);
-            color: var(--text-color);
-            padding: 25px 30px;
-            border-radius: 8px;
-            text-align: left; /* 設定項目が多いので左寄せに */
-            box-shadow: 0 5px 15px var(--modal-shadow-color);
-            transition: background-color 0.3s, color 0.3s;
-            width: 90%;
-            max-width: 450px;
-        }
-        .modal-content h2 {
-            text-align: center;
-            margin-top: 0;
-            margin-bottom: 25px;
-        }
-        .modal-content p {
-            margin-bottom: 20px;
-            font-size: 18px;
-            text-align: center; /* 確認メッセージは中央 */
-        }
-        .modal-content button.action-button { /* モーダル内の主要ボタン */
-            margin: 0 10px;
-            padding: 10px 20px;
-            width: auto;
-            height: auto;
-            border-radius: 5px;
-            font-size: 16px;
-            box-shadow: 0 2px 4px var(--shadow-color);
-        }
-        #confirmYes {
-            background-color: var(--recording-button-bg);
-            color: var(--primary-button-text);
-        }
-        #confirmYes:hover {
-            background-color: var(--recording-button-hover-bg);
-        }
-        #confirmNo, #translationSettingsCloseButton { /* 閉じるボタン等 */
-            background-color: var(--secondary-button-bg);
-            color: var(--secondary-button-text);
-        }
-        #confirmNo:hover, #translationSettingsCloseButton:hover {
-            background-color: var(--secondary-button-hover-bg);
-        }
-        .modal-buttons {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        /* トグルスイッチ */
-        .switch-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .switch-container label {
-            margin-right: 10px;
-            font-size: 16px;
-        }
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 28px;
-        }
-        .switch input { 
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--switch-bg-off);
-            transition: .4s;
-            border-radius: 28px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            left: 4px;
-            bottom: 4px;
-            background-color: var(--switch-knob-bg);
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: var(--switch-bg-on);
-        }
-        input:checked + .slider:before {
-            transform: translateX(22px);
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: var(--text-color-light);
-        }
+        .switch-container { display: flex; align-items: center; margin-bottom: 15px; }
+        .switch-container label { margin-right: 10px; font-size: 16px; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--switch-bg-off); transition: .4s; border-radius: 28px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: var(--switch-knob-bg); transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--switch-bg-on); }
+        input:checked + .slider:before { transform: translateX(22px); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 14px; color: var(--text-color-light); }
 
     </style>
 </head>
@@ -370,14 +164,13 @@
     </div>
 
     <div id="outputArea">
-        <p>ここに認識されたテキストが表示されます。</p>
+        <p class="interim">ここに認識されたテキストが表示されます。</p> 
     </div>
     <div id="statusMessage"></div>
     <div class="privacy-notice">
         <p>音声データはクラウドに保存されません。ご安心ください。</p>
     </div>
 
-    <!-- 確認モーダル -->
     <div id="confirmModal" class="modal">
         <div class="modal-content">
             <p>本当に履歴を削除しますか？</p>
@@ -388,7 +181,6 @@
         </div>
     </div>
 
-    <!-- リアルタイム翻訳設定モーダル -->
     <div id="translationSettingsModal" class="modal">
         <div class="modal-content">
             <h2>リアルタイム翻訳設定</h2>
@@ -420,10 +212,8 @@
         </div>
     </div>
 
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 要素取得
             const micButton = document.getElementById('micButton');
             const micIcon = document.getElementById('micIcon');
             const stopIcon = document.getElementById('stopIcon');
@@ -444,18 +234,17 @@
             const translationTargetLang = document.getElementById('translationTargetLang');
             const translationSettingsCloseButton = document.getElementById('translationSettingsCloseButton');
 
-            // 状態変数
             let isRecording = false;
             let recognition;
-            let currentInterimParagraph = null;
+            let currentInterimDisplay = null;
             let translationSettings = {
                 enabled: false,
-                source: 'auto', // 'auto', 'ja-JP', 'en-US'
-                target: 'en'    // 'ja', 'en'
+                source: 'auto',
+                target: 'en'
             };
 
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const initialOutputMessage = '<p>ここに認識されたテキストが表示されます。</p>';
+            const initialOutputMessage = '<p class="interim">ここに認識されたテキストが表示されます。</p>';
 
             if (SpeechRecognition) {
                 recognition = new SpeechRecognition();
@@ -475,15 +264,14 @@
                     
                     if (outputArea.innerHTML.trim() === initialOutputMessage.trim()) {
                         outputArea.innerHTML = '';
-                        currentInterimParagraph = null;
+                        currentInterimDisplay = null;
                     }
                 };
 
                 recognition.onresult = async (event) => {
                     let interimTranscript = '';
                     let finalTranscript = '';
-                    let lastParagraphElement = null; // 最後に確定した原文のp要素
-
+                    
                     for (let i = event.resultIndex; i < event.results.length; ++i) {
                         const transcript = event.results[i][0].transcript;
                         if (event.results[i].isFinal) {
@@ -493,60 +281,35 @@
                         }
                     }
 
-                    if (interimTranscript) {
-                        if (!currentInterimParagraph) {
-                            currentInterimParagraph = document.createElement('p');
-                            currentInterimParagraph.classList.add('interim');
-                            outputArea.appendChild(currentInterimParagraph);
+                    if (interimTranscript.trim() !== '') {
+                        if (!currentInterimDisplay) {
+                            currentInterimDisplay = document.createElement('p');
+                            currentInterimDisplay.classList.add('interim');
+                            outputArea.appendChild(currentInterimDisplay);
                         }
-                        currentInterimParagraph.textContent = (finalTranscript + interimTranscript).trim(); // 仮の最終結果 + 中間結果
+                        currentInterimDisplay.textContent = (finalTranscript + interimTranscript).trim();
+                    } else if (currentInterimDisplay && finalTranscript.trim() === '') {
+                        currentInterimDisplay.textContent = '';
                     }
 
                     if (finalTranscript.trim() !== '') {
-                        if (currentInterimParagraph) {
-                            currentInterimParagraph.textContent = finalTranscript.trim();
-                            currentInterimParagraph.classList.remove('interim');
-                            lastParagraphElement = currentInterimParagraph;
-                        } else {
-                            const p = document.createElement('p');
-                            p.textContent = finalTranscript.trim();
-                            outputArea.appendChild(p);
-                            lastParagraphElement = p;
+                        if (currentInterimDisplay) {
+                            currentInterimDisplay.remove();
+                            currentInterimDisplay = null;
                         }
-                        currentInterimParagraph = null; // 次の認識のためにリセット
 
-                        // リアルタイム翻訳が有効なら翻訳実行
-                        if (translationSettings.enabled && lastParagraphElement) {
-                            const textToTranslate = finalTranscript.trim();
-                            let sourceLangCode = translationSettings.source;
-                            if (sourceLangCode === 'auto') {
-                                sourceLangCode = recognition.lang.split('-')[0]; // ja-JP -> ja
-                            } else {
-                                sourceLangCode = sourceLangCode.split('-')[0];
-                            }
-                            const targetLangCode = translationSettings.target;
+                        const speechEntry = document.createElement('div');
+                        speechEntry.classList.add('speech-entry');
 
-                            // 原文と訳文の言語が同じ場合は翻訳しない
-                            if (textToTranslate && sourceLangCode !== targetLangCode) {
-                                try {
-                                    const translatedText = await translateText(textToTranslate, sourceLangCode, targetLangCode);
-                                    if (translatedText) {
-                                        const translationP = document.createElement('p');
-                                        translationP.classList.add('translated-text');
-                                        translationP.textContent = `訳 (${targetLangCode}): ${translatedText}`;
-                                        // 原文のp要素の直後に挿入
-                                        if (lastParagraphElement.nextSibling) {
-                                            outputArea.insertBefore(translationP, lastParagraphElement.nextSibling);
-                                        } else {
-                                            outputArea.appendChild(translationP);
-                                        }
-                                    }
-                                } catch (error) {
-                                    console.error('Translation error:', error);
-                                    statusMessage.textContent = '翻訳エラーが発生しました。';
-                                }
-                            }
+                        const originalP = document.createElement('p');
+                        originalP.classList.add('original-text');
+                        originalP.textContent = finalTranscript.trim();
+                        speechEntry.appendChild(originalP);
+
+                        if (translationSettings.enabled) {
+                            await addTranslationToEntry(speechEntry, finalTranscript.trim());
                         }
+                        outputArea.appendChild(speechEntry);
                     }
                     outputArea.scrollTop = outputArea.scrollHeight;
                 };
@@ -560,11 +323,10 @@
                     micButton.disabled = false;
                     micButton.setAttribute('aria-label', '音声認識を開始');
 
-                    if (currentInterimParagraph && currentInterimParagraph.textContent.trim() !== '') {
-                        currentInterimParagraph.classList.remove('interim');
-                        // 翻訳処理は onresult で isFinal 時に行うため、ここでは不要
+                    if (currentInterimDisplay && currentInterimDisplay.textContent.trim() === '') {
+                        currentInterimDisplay.remove();
+                        currentInterimDisplay = null;
                     }
-                    currentInterimParagraph = null;
                 };
 
                 recognition.onerror = (event) => {
@@ -573,16 +335,19 @@
                     else if (event.error === 'audio-capture') errorMessage = 'マイクが見つかりません。';
                     else if (event.error === 'not-allowed') errorMessage = 'マイクの使用が許可されていません。';
                     statusMessage.textContent = errorMessage + ' (' + event.error + ')';
+                    if (currentInterimDisplay) {
+                        currentInterimDisplay.remove();
+                        currentInterimDisplay = null;
+                    }
                 };
 
-                // --- ボタンイベントリスナー ---
                 micButton.addEventListener('click', () => {
                     if (!SpeechRecognition) return;
                     if (isRecording) {
                         recognition.stop();
                     } else {
                         try {
-                            recognition.lang = languageSelect.value;
+                            recognition.lang = languageSelect.value; // 常に最新の音声認識言語を使用
                             recognition.start();
                             isRecording = true;
                             micButton.disabled = true; setTimeout(() => micButton.disabled = false, 1000);
@@ -601,13 +366,17 @@
                 languageSelect.addEventListener('change', (event) => {
                     recognition.lang = event.target.value;
                     statusMessage.textContent = `音声認識言語が ${languageSelect.options[languageSelect.selectedIndex].text} に変更されました。`;
-                    if (isRecording) statusMessage.textContent += ' 録音を停止しました。再度マイクボタンを押してください。';
+                    if (isRecording) {
+                        // 録音中に言語変更した場合、一度停止して再度開始するか、ユーザーに委ねるか
+                        // 現在は stop() は呼ばず、次の recognition.start() から新しい言語が適用される
+                        statusMessage.textContent += ' 次の録音から適用されます。';
+                    }
                 });
 
                 clearButton.addEventListener('click', () => confirmModal.style.display = 'flex');
                 confirmYesButton.addEventListener('click', () => {
                     outputArea.innerHTML = initialOutputMessage;
-                    currentInterimParagraph = null;
+                    if (currentInterimDisplay) currentInterimDisplay = null;
                     statusMessage.textContent = '履歴がクリアされました。';
                     closeConfirmModal();
                 });
@@ -615,67 +384,113 @@
                 confirmModal.addEventListener('click', (e) => { if (e.target === confirmModal) closeConfirmModal(); });
                 function closeConfirmModal() { confirmModal.style.display = 'none'; }
 
-                // --- リアルタイム翻訳設定関連 ---
                 translationSettingsButton.addEventListener('click', () => {
-                    // 現在の設定をモーダルに反映
                     realtimeTranslationToggle.checked = translationSettings.enabled;
                     translationSourceLang.value = translationSettings.source;
                     translationTargetLang.value = translationSettings.target;
                     translationSettingsModal.style.display = 'flex';
                 });
-
                 translationSettingsCloseButton.addEventListener('click', () => {
                     translationSettingsModal.style.display = 'none';
                 });
-                
                 translationSettingsModal.addEventListener('click', (e) => {
                     if (e.target === translationSettingsModal) translationSettingsModal.style.display = 'none';
                 });
 
-                realtimeTranslationToggle.addEventListener('change', (e) => {
+                realtimeTranslationToggle.addEventListener('change', async (e) => {
                     translationSettings.enabled = e.target.checked;
+                    if (translationSettings.enabled) {
+                        // 翻訳をONにした場合、既存の未翻訳テキストを翻訳する
+                        const entries = outputArea.querySelectorAll('.speech-entry');
+                        for (const entry of entries) {
+                            const originalTextElement = entry.querySelector('.original-text');
+                            const hasTranslation = entry.querySelector('.translated-text-container');
+                            if (originalTextElement && !hasTranslation) {
+                                await addTranslationToEntry(entry, originalTextElement.textContent);
+                            }
+                        }
+                    } else {
+                        // 翻訳をOFFにした場合、既存の翻訳を削除するかどうかは選択肢
+                        // 今回は削除しない（OFFにした後の新しい発話から翻訳されなくなる）
+                    }
                 });
                 translationSourceLang.addEventListener('change', (e) => {
                     translationSettings.source = e.target.value;
+                    // TODO: 翻訳設定変更時に既存の翻訳を更新するかどうか
                 });
                 translationTargetLang.addEventListener('change', (e) => {
                     translationSettings.target = e.target.value;
+                    // TODO: 翻訳設定変更時に既存の翻訳を更新するかどうか
                 });
-
 
                 statusMessage.textContent = 'マイクボタンを押して話してください。';
 
             } else {
-                // SpeechRecognition非対応ブラウザの処理
                 [micButton, langButton, clearButton, translationSettingsButton, languageSelect].forEach(el => el.disabled = true);
                 statusMessage.textContent = 'お使いのブラウザは音声認識に対応していません。';
                 outputArea.innerHTML = '<p>音声認識機能を利用できません。</p>';
             }
 
-            // --- 翻訳関数 (MyMemory API) ---
-            async function translateText(text, sourceLang, targetLang) {
-                if (!text || !sourceLang || !targetLang) return null;
-                // MyMemory APIは 'en-US' を 'en' と解釈するので、ハイフン以下は除去
-                const langPair = `${sourceLang.split('-')[0]}|${targetLang.split('-')[0]}`;
-                const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langPair}`;
+            // 翻訳をspeech-entryに追加するヘルパー関数
+            async function addTranslationToEntry(speechEntryElement, textToTranslate) {
+                if (!textToTranslate) return;
+
+                let sourceLangForApi = translationSettings.source;
+                if (sourceLangForApi === 'auto') {
+                    // speech-entry生成時の音声認識言語を使う必要がある。
+                    // しかし、speech-entryにはその情報が保存されていない。
+                    // ここでは、現在の音声認識設定言語を使う（これが最も直近の意図に近い）
+                    sourceLangForApi = recognition.lang.split('-')[0];
+                } else {
+                    sourceLangForApi = sourceLangForApi.split('-')[0];
+                }
+                const targetLangForApi = translationSettings.target;
+
+                if (sourceLangForApi === targetLangForApi) return; // 同じ言語なら翻訳不要
 
                 try {
+                    const translatedText = await translateText(textToTranslate, sourceLangForApi, targetLangForApi);
+                    if (translatedText) {
+                        // 既に翻訳コンテナがある場合は更新、なければ新規作成
+                        let translationContainer = speechEntryElement.querySelector('.translated-text-container');
+                        if (!translationContainer) {
+                            translationContainer = document.createElement('div');
+                            translationContainer.classList.add('translated-text-container');
+                            
+                            const labelSpan = document.createElement('span');
+                            labelSpan.classList.add('translation-label');
+                            translationContainer.appendChild(labelSpan);
+
+                            const translationP = document.createElement('p');
+                            translationP.classList.add('translated-text');
+                            translationContainer.appendChild(translationP);
+                            
+                            speechEntryElement.appendChild(translationContainer);
+                        }
+                        
+                        translationContainer.querySelector('.translation-label').textContent = `訳 (${targetLangForApi.toUpperCase()}):`;
+                        translationContainer.querySelector('.translated-text').textContent = translatedText;
+                    }
+                } catch (error) {
+                    console.error('Retroactive translation error:', error);
+                }
+            }
+
+
+            async function translateText(text, sourceLang, targetLang) {
+                if (!text || !sourceLang || !targetLang) return null;
+                const langPair = `${sourceLang.split('-')[0]}|${targetLang.split('-')[0]}`;
+                const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langPair}`;
+                try {
                     const response = await fetch(apiUrl);
-                    if (!response.ok) {
-                        throw new Error(`API request failed with status ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
                     const data = await response.json();
-                    if (data.responseData && data.responseData.translatedText) {
-                        return data.responseData.translatedText;
-                    } else if (data.matches && data.matches.length > 0) {
-                        // 時々 responseData が無くても matches に結果が入ることがある
-                        return data.matches[0].translation;
-                    }
-                    return null; // 翻訳結果なし
+                    if (data.responseData && data.responseData.translatedText) return data.responseData.translatedText;
+                    if (data.matches && data.matches.length > 0) return data.matches[0].translation;
+                    return null;
                 } catch (error) {
                     console.error('Translation API error:', error);
-                    // statusMessage.textContent = '翻訳APIとの通信に失敗しました。';
-                    throw error; // エラーを呼び出し元に伝える
+                    throw error;
                 }
             }
         });
